@@ -1,0 +1,33 @@
+# =====================
+# IDE
+# =====================
+.idea/
+*.iml
+
+# =====================
+# Java / Spring Boot
+# =====================
+backend/target/
+backend/.classpath
+backend/.project
+backend/.settings/
+
+# =====================
+# Node / React (future)
+# =====================
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.cache
+
+# =====================
+# OS
+# =====================
+.DS_Store
+Thumbs.db
+
+# =====================
+# Logs
+# =====================
+*.log
