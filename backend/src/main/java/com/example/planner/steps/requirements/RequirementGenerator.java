@@ -1,5 +1,6 @@
 package com.example.planner.steps.requirements;
 
+import com.example.planner.llm.JsonUtils;
 import com.example.planner.llm.LLMClient;
 import com.example.planner.llm.PromptTemplates;
 import com.example.planner.model.PipelineRun;
@@ -25,9 +26,15 @@ public class RequirementGenerator implements StepRunner {
 
     @Override
     public StepResult run(PipelineRun run) {
-        String out = llm.generate(
+        String raw = llm.generate(
                 PromptTemplates.requirements(run.getRawInput())
         );
-        return StepResult.ok(out);
+
+        try {
+            String normalizedJson = JsonUtils.normalize(raw);
+            return StepResult.ok(normalizedJson);
+        } catch (Exception e) {
+            return StepResult.fail("Invalid JSON from LLM");
+        }
     }
 }

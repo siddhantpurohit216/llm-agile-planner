@@ -1,5 +1,6 @@
 package com.example.planner.steps.epics;
 
+import com.example.planner.llm.JsonUtils;
 import com.example.planner.llm.LLMClient;
 import com.example.planner.llm.PromptTemplates;
 import com.example.planner.model.PipelineRun;
@@ -25,16 +26,25 @@ public class EpicGenerator implements StepRunner {
 
     @Override
     public boolean requiresUserInput() {
-        return false; // 👈 pause after this
+        return true; // ✅ pause after epics
     }
 
     @Override
     public StepResult run(PipelineRun run) {
-        String out = llm.generate(
+        String raw = llm.generate(
                 PromptTemplates.epics(
                         run.getOutput("REQUIREMENT_GENERATION")
                 )
         );
-        return StepResult.ok(out);
+
+        System.out.println("RAW EPIC GENERATION OUTPUT:\n" + raw);
+
+        try {
+            String normalized = JsonUtils.normalize(raw);
+            return StepResult.ok(normalized);
+        } catch (Exception e) {
+            return StepResult.fail("Invalid JSON from EPIC_GENERATION: " + raw);
+        }
     }
+
 }

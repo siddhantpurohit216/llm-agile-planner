@@ -1,10 +1,12 @@
 package com.example.planner.steps.epics;
 
+import com.example.planner.llm.JsonUtils;
 import com.example.planner.llm.LLMClient;
 import com.example.planner.llm.PromptTemplates;
 import com.example.planner.model.PipelineRun;
 import com.example.planner.orchestrator.StepResult;
 import com.example.planner.orchestrator.StepRunner;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -25,15 +27,25 @@ public class EpicValidator implements StepRunner {
 
     @Override
     public StepResult run(PipelineRun run) {
-        String epics = run.getOutput("EPIC_GENERATION");
+        String epicsJson = run.getOutput("EPIC_GENERATION");
 
         String response = llm.generate(
-                PromptTemplates.validate(epics)
+                PromptTemplates.validateJson(
+                        epicsJson,
+                        "Must contain a non-empty 'epics' array with id, title, description"
+                )
         );
 
-        if (response.startsWith("VALID")) {
-            return StepResult.ok("VALIDATED");
+        try {
+            JsonNode node = JsonUtils.parse(response);
+            boolean valid = node.get("valid").asBoolean();
+
+            if (valid) {
+                return StepResult.ok(response);
+            }
+            return StepResult.fail(node.get("reason").asText());
+        } catch (Exception e) {
+            return StepResult.fail("Epic validation returned invalid JSON");
         }
-        return StepResult.fail(response);
     }
 }

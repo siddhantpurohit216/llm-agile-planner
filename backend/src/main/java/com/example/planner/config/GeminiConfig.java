@@ -9,7 +9,7 @@ public class GeminiConfig {
     public Client geminiClient() {
         // HARD-CODE ONLY FOR NOW (replace later with env var)
         return Client.builder()
-                .apiKey("AIzaSyCt0EnOZCU9kbODsp-HilQeKW16mnR0l3o")
+                .apiKey("")
                 .build();
     }
 }
